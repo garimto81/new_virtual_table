@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#667eea">
+  <title>Hand Logger - Poker Hand Recorder</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="/icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icon-192.png">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header style="display: none;">
+    </header>
+
+    <div class="main-content">
+      <!-- 로딩 -->
+      <div id="loading" class="loading">
+        로딩 중
+      </div>
+
+      <!-- 테이블 목록 -->
+      <div id="tableListSection" class="hidden">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 10px; border-radius: 8px; background: #f8f9fa;">
+            <input type="radio" name="tableFilter" value="keyplayer" checked onchange="applyTableFilter()">
+            <span style="font-size: 14px; font-weight: 600;">⭐ 키 플레이어</span>
+          </label>
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 10px; border-radius: 8px; background: #f8f9fa;">
+            <input type="radio" name="tableFilter" value="all" onchange="applyTableFilter()">
+            <span style="font-size: 14px; font-weight: 600;">📋 전체</span>
+          </label>
+        </div>
+        <div id="tableList"></div>
+      </div>
+
+      <!-- 플레이어 관리 모드 -->
+      <div id="playerManagementMode" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="flex: 1;">
+            <div id="selectedTableName" style="font-size: 16px; font-weight: 600; color: #2a5298;"></div>
+            <div id="selectedTableInfo" style="font-size: 12px; color: #666; margin-top: 2px;"></div>
+          </div>
+          <button onclick="backToTableList()" class="secondary" style="padding: 8px 16px; min-height: 36px;">←</button>
+        </div>
+        <div id="playerList"></div>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+          <button onclick="openAddPlayerModal()">+ 플레이어 추가</button>
+          <button onclick="switchToHandMode()" class="success">📝 핸드 기록 시작</button>
+        </div>
+      </div>
+
+      <!-- 핸드 기록 모드 -->
+      <div id="handRecordingMode" class="section hidden">
+        <div class="table-header" style="margin-bottom: 20px;">
+          <div>
+            <h2>핸드 #<span id="handNumber">1</span></h2>
+            <p style="color: #666; margin-top: 5px;">
+              <span id="handTableName"></span> -
+              <span id="handPlayerCount"></span>
+            </p>
+          </div>
+          <button onclick="backToPlayerManagement()" class="secondary">← 플레이어 관리</button>
+        </div>
+
+        <h3 style="margin: 15px 0 10px 0; color: #2a5298;">플레이어</h3>
+        <div id="handPlayerList" class="hand-player-list"></div>
+
+        <h3 style="margin: 15px 0 10px 0; color: #2a5298;">액션</h3>
+        <div class="action-buttons">
+          <button onclick="recordActionType('fold')" class="danger">Fold</button>
+          <button onclick="recordActionType('check')">Check</button>
+          <button onclick="recordActionType('call')" class="success">Call</button>
+          <button onclick="recordActionType('bet')" class="success">Bet</button>
+          <button onclick="recordActionType('raise')" class="success">Raise</button>
+          <button onclick="recordActionType('allin')" style="background: #ff6b6b;">All-In</button>
+        </div>
+
+        <h3 style="margin: 15px 0 10px 0; color: #2a5298;">액션 로그</h3>
+        <div id="actionLog" class="action-log">
+          <p style="color: #999;">아직 기록된 액션이 없습니다</p>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+          <button onclick="completeHand()" class="success">핸드 완료 & 다음 핸드</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 칩 수정 모달 -->
+  <div id="chipsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>칩 수정</h3>
+        <button class="close-btn" onclick="closeModal('chipsModal')">×</button>
+      </div>
+      <div class="form-group">
+        <label>플레이어: <span id="chipsPlayerName"></span></label>
+      </div>
+      <div class="form-group">
+        <label>새 칩 수량</label>
+        <input type="number" id="newChipsInput" placeholder="예: 50000">
+      </div>
+      <button onclick="saveChips()" class="success" style="width: 100%;">저장</button>
+    </div>
+  </div>
+
+  <!-- 좌석 변경 모달 -->
+  <div id="seatModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>좌석 변경</h3>
+        <button class="close-btn" onclick="closeModal('seatModal')">×</button>
+      </div>
+      <div class="form-group">
+        <label>플레이어: <span id="seatPlayerName"></span></label>
+      </div>
+      <div class="form-group">
+        <label>새 좌석 번호</label>
+        <select id="newSeatSelect">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <button onclick="saveSeat()" class="success" style="width: 100%;">저장</button>
+    </div>
+  </div>
+
+  <!-- 플레이어 추가 모달 -->
+  <div id="addPlayerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>플레이어 추가</h3>
+        <button class="close-btn" onclick="closeModal('addPlayerModal')">×</button>
+      </div>
+      <div class="form-group">
+        <label>이름</label>
+        <input type="text" id="newPlayerName" placeholder="예: John Doe">
+      </div>
+      <div class="form-group">
+        <label>좌석 번호</label>
+        <select id="newPlayerSeat">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>칩</label>
+        <input type="number" id="newPlayerChips" placeholder="예: 10000">
+      </div>
+      <div class="form-group">
+        <label>국적</label>
+        <input type="text" id="newPlayerNationality" placeholder="예: KR" maxlength="2">
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="newPlayerIsKeyPlayer">
+          키 플레이어
+        </label>
+      </div>
+      <button onclick="addPlayer()" class="success" style="width: 100%;">추가</button>
+    </div>
+  </div>
+
+  <!-- 액션 입력 모달 -->
+  <div id="actionModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>액션: <span id="actionType"></span></h3>
+        <button class="close-btn" onclick="closeModal('actionModal')">×</button>
+      </div>
+      <div class="form-group">
+        <label>플레이어: <span id="actionPlayerName"></span></label>
+      </div>
+      <div class="form-group" id="actionAmountGroup">
+        <label>금액</label>
+        <input type="number" id="actionAmount" placeholder="예: 5000">
+      </div>
+      <button onclick="saveAction()" class="success" style="width: 100%;">기록</button>
+    </div>
+  </div>
+
+  <!-- 카드 입력 모달 -->
+  <div id="cardsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>카드 입력</h3>
+        <button class="close-btn" onclick="closeModal('cardsModal')">×</button>
+      </div>
+      <div class="form-group">
+        <label>플레이어: <span id="cardsPlayerName"></span></label>
+      </div>
+      <div class="form-group">
+        <label>카드 (예: A♠ K♠)</label>
+        <input type="text" id="cardsInput" placeholder="A♠ K♠">
+      </div>
+      <button onclick="saveCards()" class="success" style="width: 100%;">저장</button>
+    </div>
+  </div>
+
+  <!-- 설정 모달 -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ 초기 설정</h3>
+      </div>
+      <p style="color: #666; margin-bottom: 20px;">
+        앱을 사용하기 위해 Google API 키와 시트 ID를 입력해주세요.<br>
+        <strong>이 정보는 브라우저에만 저장되며 서버로 전송되지 않습니다.</strong>
+      </p>
+
+      <div class="form-group">
+        <label>Google API Key *</label>
+        <input type="text" id="settingsApiKey" placeholder="AIzaSy...">
+        <small style="color: #666; display: block; margin-top: 5px;">
+          <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #667eea;">
+            Google Cloud Console
+          </a>에서 발급
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>Main Sheet ID (Type 시트) *</label>
+        <input type="text" id="settingsMainSheet" placeholder="1J-lf8bYT..."
+               value="1J-lf8bYTLPbpdhieUNdb8ckW_uwdQ3MtSBLmyRIwH7U">
+        <small style="color: #666; display: block; margin-top: 5px;">
+          Google Sheets URL에서 /d/ 다음 부분
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>Output Sheet ID (Hand, Index 시트) *</label>
+        <input type="text" id="settingsOutputSheet" placeholder="115YuetX..."
+               value="115YuetXIOHr2Wpmnb77bKZniQ8JI2rEJKsGST-KMS6Y">
+      </div>
+
+      <button onclick="saveSettings()" class="success" style="width: 100%; margin-top: 10px;">
+        💾 저장 & 시작
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import all functions from modules
+    import { CONFIG, checkSettings, saveSettings } from './js/config.js';
+    import { openModal, closeModal } from './js/ui.js';
+    import { loadKeyPlayerTables, applyTableFilter, selectTable, backToTableList,
+             openChipsModal, saveChips, openSeatModal, saveSeat, removePlayer,
+             openAddPlayerModal, addPlayer } from './js/table-manager.js';
+    import { switchToHandMode, backToPlayerManagement, recordActionType, saveAction,
+             openCardsModal, saveCards, completeHand, selectPlayerForAction } from './js/hand-recorder.js';
+    import { SYNC } from './js/sync.js';
+
+    // Global namespace for onclick handlers
+    // Table Manager namespace
+    window.tableManager = {
+      selectTable: selectTable,
+      openChipsModal: openChipsModal
+    };
+
+    // Hand Recorder namespace
+    window.handRecorder = {
+      selectPlayerForAction: selectPlayerForAction,
+      openCardsModal: openCardsModal
+    };
+
+    // Direct window functions (for simple onclick)
+    window.applyTableFilter = applyTableFilter;
+    window.backToTableList = backToTableList;
+    window.saveChips = saveChips;
+    window.openSeatModal = openSeatModal;
+    window.saveSeat = saveSeat;
+    window.removePlayer = removePlayer;
+    window.openAddPlayerModal = openAddPlayerModal;
+    window.addPlayer = addPlayer;
+    window.switchToHandMode = switchToHandMode;
+    window.backToPlayerManagement = backToPlayerManagement;
+    window.recordActionType = recordActionType;
+    window.saveAction = saveAction;
+    window.saveCards = saveCards;
+    window.completeHand = completeHand;
+    window.closeModal = closeModal;
+    window.saveSettings = saveSettings;
+    window.openModal = openModal;
+
+    // Service Worker 등록
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('✅ Service Worker 등록 성공:', registration.scope);
+          })
+          .catch(error => {
+            console.error('❌ Service Worker 등록 실패:', error);
+          });
+      });
+    }
+
+    // PWA 설치 안내
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      // 설치 안내 배너 표시 (향후 구현)
+      console.log('💡 PWA 설치 가능');
+    });
+
+    // App initialization
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (checkSettings()) {
+        await loadKeyPlayerTables();
+
+        // Background Sync 시작 (DB 초기화 후)
+        SYNC.start();
+      } else {
+        document.getElementById('loading').classList.add('hidden');
+      }
+    });
+
+    // App 종료 시 Sync 중지
+    window.addEventListener('beforeunload', () => {
+      SYNC.stop();
+    });
+  </script>
+</body>
+</html>

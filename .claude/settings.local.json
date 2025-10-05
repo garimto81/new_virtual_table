@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(if exist prototype.html del prototype.html)",
+      "Read(//c/claude/**)",
+      "Bash(dir:*)",
+      "Bash(python:*)",
+      "Bash(cat:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
