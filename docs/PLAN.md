@@ -1,560 +1,438 @@
-# 📋 PLAN v6.2 - 프로토타입 우선 개발 계획
+# 📋 PLAN v7.0 - 비전 및 철학
 
-> **Prototype-First Development Roadmap**
-> **최종 업데이트**: 2025-10-05
+> **Product Vision & Development Philosophy**
+> **최종 업데이트**: 2025-10-06
 > **기반 문서**: [PRD v7.3](./PRD.md), [LLD v6.1](./LLD.md)
-> **철학**: 핵심 기능 먼저 → 검증 → 부가 기능 확장
+> **상태**: [STATUS.md](./STATUS.md)
 
 ---
 
-## 🔄 개발 워크플로우 (필수)
+## 🎯 제품 비전 (불변)
 
-### Code Review 필수
-**규칙**: 코드 변경/추가 작업이 완료되면 **항상** code-reviewer 에이전트를 실행합니다.
+### 핵심 미션
+**"키 플레이어가 앉은 테이블의 모든 활동을 실시간 추적하여, 카지노가 게임 데이터를 분석하고 키 플레이어를 효과적으로 관리할 수 있게 한다"**
 
-**체크 항목**:
-- 코드 중복 (동일 코드 3번 이상 반복)
-- 무분별한 코드 사용 (중첩 반복문, 과도한 DOM 조작)
-- CSS/HTML 중복
+### 제품 가치
+```yaml
+사용자: Sarah Kim (포커 데이터 매니저, 28세)
+환경: 마닐라 카지노 플로어 (이동 중)
+기기: iPhone (한 손 조작)
 
-**승인 기준**:
-- ✅ APPROVED: 코드 중복 0건, 무분별한 사용 0건
-- ❌ REJECTED: 수정 필요 항목 있음
+핵심 가치:
+  1. Minimal Design: 정보 밀도 최대화
+     - 화면당 6-8개 테이블 표시
+     - 단일 행 = 단일 플레이어 (48px)
+     - 불필요한 텍스트/버튼 제거
 
-**예외 없음**: 문서 수정만 한 경우를 제외하고 **모든 코드 작업**은 code-reviewer 통과 필수
+  2. 한 손 조작: 카지노 플로어 이동 중
+     - 모든 버튼 하단 배치
+     - 최소 터치 영역 48px
+     - 하단 시트 UI
 
-### 서브에이전트 활용
-**병렬 실행** (성능 최적화):
-- 독립적인 작업은 동시에 여러 에이전트 호출
-- 예: "javascript-pro와 debugger를 동시에 호출"
+  3. 빠른 전환: 1초 이내 테이블 이동
+     - IndexedDB 캐싱
+     - 오프라인 100% 지원
+     - 백그라운드 동기화
 
-**순차 실행** (의존성 있는 작업):
-- 코드 작성 → debugger → code-reviewer 순서
-
-### 문서 관리
-- **핵심 문서 3개만 유지**: PRD.md, LLD.md, PLAN.md
-- 새 문서 추가 시 → 기존 문서에 통합 또는 삭제
-- 매주 금요일 문서 정리
+  4. 직접 입력: 불필요한 모달 최소화
+     - 칩 금액 탭 → 직접 입력
+     - 좌석 번호 탭 → 직접 입력
+     - 액션 기록 → 즉시 저장
+```
 
 ---
 
-## 📝 Week 1 완료 상태
+## 💡 개발 철학 (불변)
 
-### ✅ Day 1-2: 핵심 로직 구현 (완료)
-- 단일 파일 프로토타입 (index.html 1615줄)
-- 테이블 목록 로드, 필터링, 선택
-- 플레이어 관리 (칩, 좌석)
-- 핸드 기록 (액션, 카드)
+### 빠른 검증, 점진적 개선
 
-### ✅ Day 3: Minimal Design 적용 (완료)
-- DESIGN_SYSTEM.md 생성
-- 테이블 카드 2줄 압축 (56px)
-- 플레이어 카드 1줄 (48px)
-- 칩 금액 압축 (1K, 50K)
+#### ❌ 기존 방식의 문제
+- 4주 후에야 완성된 앱 확인
+- 중간에 방향 바뀌면 전체 다시 만들기
+- 실제로 써보기 전까지 좋은지 모름
+- 처음부터 모든 기능 만들려고 함
 
-### ✅ Day 4-5: 모듈화 리팩토링 (완료)
-- 1615줄 → 8개 파일 (1779줄)
-- utils.js, ui.js 공통 모듈 분리
-- window namespace 구조화
-- Code Review 통과 (코드 중복 0건)
+#### ✅ 우리의 방식
+- **3일 후 동작하는 앱** 만들기
+- **매주 Sarah와 함께 테스트** 하며 개선
+- **필요한 기능만 추가** (과하지 않게)
+- **매주 사용 가능한 버전** 유지
+
+### 빠른 반응, 오프라인 지원
+
+#### 핵심 원칙
+```
+Sarah가 버튼 누름
+    ↓
+앱이 즉시 반응 (0.3초 이내)
+    ↓
+화면에 바로 표시
+    ↓
+나중에 서버에 저장 (백그라운드)
+    ↓
+인터넷 끊겨도 계속 사용 가능
+```
+
+#### 성능 목표
+| Sarah의 작업 | 앱 반응 시간 |
+|-------------|-------------|
+| 앱 열기 | 2초 이내 |
+| 테이블 바꾸기 | 1초 이내 |
+| 핸드 시작 | 0.5초 이내 |
+| 액션 입력 | 0.3초 이내 |
+| 핸드 완료 | 2초 이내 |
+
+---
+
+## 🎨 Minimal Design 철학 (불변)
+
+> **상세 문서**: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)
+
+### 5대 원칙
+
+#### 1. Information Density (정보 밀도)
+```yaml
+목표: 화면당 최소 6-8개 테이블 표시
+방법:
+  - 단일 행 = 단일 플레이어 (48px)
+  - 테이블 카드: 56px (2줄 압축)
+  - 플레이어 카드: 48px (단일 행)
+
+금지:
+  ❌ 큰 제목 (padding > 20px)
+  ❌ 설명 텍스트 ("아래에서 선택...")
+  ❌ 카드 그리드 (공간 낭비)
+  ❌ 큰 여백 (margin > 16px)
+```
+
+#### 2. Action-First (액션 우선)
+```yaml
+기존: 칩 수정 버튼 → 모달 → 입력 → 저장
+개선: 칩 금액 탭 → 직접 입력
+
+기존: 좌석 변경 버튼 → 모달 → 선택
+개선: 좌석 번호 탭 → 직접 입력
+```
+
+#### 3. Text Hierarchy (텍스트 위계)
+```css
+대분류: 16px, 600
+데이터: 14px, 400
+메타: 12px, 400, #666
+```
+
+#### 4. Spacing System (간격 체계)
+```css
+XS: 4px  (같은 그룹 내 요소)
+S:  8px  (관련 요소)
+M: 12px  (섹션 내부)
+L: 16px  (섹션 간)
+XL: 24px (페이지 구분)
+```
+
+#### 5. Compression Rules (압축 규칙)
+```yaml
+테이블:
+  - "Table 3" → "T3"
+  - "Resorts World Manila" → "RWM"
+
+플레이어:
+  - "John Doe" → "John" (First Name만)
+
+칩:
+  - 1,000 → "1K"
+  - 50,000 → "50K"
+  - 120,000 → "120K"
+
+상태:
+  - "전체 8명 (키 플레이어 2명)" → "8명" + "⭐2"
+```
+
+---
+
+## 🎮 핵심 가치: 반복 작업 자동화 (불변)
+
+### 철학
+**"Sarah가 '다음은 누구 차례'를 생각하지 않고, 앱이 알아서 안내한다"**
+
+### Sarah의 불편함
+```yaml
+현재 문제:
+  - "핸드 번호가 뭐지?" (매번 입력)
+  - "다음은 John 차례구나" (머릿속 계산)
+  - "Call이니까 금액은... 2000" (계산)
+  - "Preflop 끝났으니 Flop 카드 입력해야지" (판단)
+  - 승자 선택 → 저장 → 새 핸드 시작 버튼 (반복 클릭)
+```
+
+### 이상적인 모습
+```yaml
+앱이 자동으로:
+  - 핸드 번호 제안 (#127 → #128)
+  - 다음 플레이어 안내 (John 차례입니다)
+  - Call 금액 계산 (Call 2000)
+  - 스트릿 전환 안내 (Flop 카드 3장 입력하세요)
+  - 핸드 완료 시 자동으로 다음 핸드 준비
+```
+
+### 포커 게임 흐름 이해
+```yaml
+Preflop (시작):
+  - 블라인드 2명 먼저 베팅
+  - 그 다음 좌석부터 시계방향으로 액션
+  - 마지막 레이즈한 사람까지 돌면 종료
+  - Flop 카드 3장 공개
+
+Flop/Turn/River:
+  - 블라인드 첫 번째 사람부터 시작
+  - 시계방향으로 액션
+  - 모두 체크하거나 마지막 레이즈까지 돌면 종료
+  - 다음 카드 공개
+
+Showdown (마지막):
+  - 남은 사람들 카드 공개
+  - 승자 결정
+  - 다음 핸드 시작
+```
+
+---
+
+### Sarah의 실제 워크플로우 (현실 반영)
+
+#### 현실 제약사항
+```yaml
+환경:
+  - 1명의 데이터 매니저가 대회장 전체를 순회
+  - 키 플레이어 5명이 서로 다른 테이블에 분산
+  - 모든 핸드를 Preflop부터 기록 불가능
+
+중간 합류 시나리오:
+  - Sarah가 Ocean Blue 테이블 도착
+  - 이미 Turn 진행 중 (Preflop/Flop 놓침)
+  - "지금 상황부터라도 기록해야 해"
+
+데이터 우선순위 (중요도순):
+  1. 보드 카드 (A♠ K♥ Q♦ 5♣)
+  2. 키 플레이어 카드 (John: A♣ K♦)
+  3. 참여 플레이어 칩 카운트 (John: 55K, Alice: 120K)
+  4. 팟 카운트 (현재 Pot: 15K)
+```
+
+#### Before (불편함)
+```yaml
+1. 테이블 도착 (Turn 진행 중)
+   - "어? 이미 Turn이네"
+   - "핸드 번호가 뭐지?" (딜러에게 물어봄)
+   - 핸드 #127 입력
+   - "보드 카드부터 적어야지"
+   - Preflop 카드: 없음
+   - Flop 카드: A♠ K♥ Q♦
+   - Turn 카드: 5♣
+   - "지금 몇 명 남았지?" (세어봄)
+   - 참여자 4명 확인
+   - "칩 카운트는..." (일일이 확인)
+
+2. Turn 액션 기록
+   - "지금 누가 액션하지?" (관찰)
+   - John Check 입력
+   - "다음은..." (생각)
+   - Alice Bet 5000 입력
+   - ...
+
+3. River 액션
+   - River 카드: 2♥
+   - "다시 John부터구나"
+   - John All-in 입력
+   - Alice Call 입력
+
+4. Showdown
+   - "카드 봐야지"
+   - John 카드: A♣ K♦ (적음)
+   - Alice 카드: A♥ Q♠ (적음)
+   - "승자는 John"
+   - 저장
+
+총 시간: 5-8분/핸드 (중간부터 + 확인 작업)
+```
+
+#### After (중간 합류 최적화)
+```yaml
+1. 테이블 도착 (Turn 진행 중)
+   - [빠른 기록] 버튼 클릭
+   - 자동: 핸드 번호 제안 (최근 번호 +1)
+   - 자동: "현재 스트릿 선택" 모달
+     → [Preflop] [Flop] [Turn] [River]
+   - Turn 선택
+
+2. 우선순위 입력 안내 (자동)
+   - 1단계: "보드 카드 입력" (하이라이트)
+     → Flop: A♠ K♥ Q♦
+     → Turn: 5♣
+   - 2단계: "참여 플레이어 선택" (자동 감지)
+     → 8명 중 4명 선택 (Fold된 플레이어 제외)
+   - 3단계: "키 플레이어 카드 입력" (우선)
+     → John: A♣ K♦
+     → Alice: A♥ Q♠
+   - 4단계: "칩 카운트" (선택사항)
+     → John: 55K, Alice: 120K
+   - 5단계: "Pot 카운트" (선택사항)
+     → 현재 Pot: 15K
+
+3. Turn 액션 (자동 하이라이트)
+   - 자동: John 하이라이트 (SB 추론)
+   - John Check 입력
+   - 자동: Alice 하이라이트
+   - Alice Bet 5000 입력
+   - ...
+
+4. River 액션
+   - River 카드: 2♥ 입력
+   - 자동: John 하이라이트
+   - John All-in 입력
+   - Alice Call 입력
+   - 자동: "카드 이미 입력됨" (스킵)
+   - 승자 선택: John
+   - 저장
+
+총 시간: 2-3분/핸드 (60% 단축)
+체감: 중간 합류해도 우선순위대로 빠르게 입력
+```
+
+---
+
+### 실수 수정 (3초 실행취소)
+
+```yaml
+문제:
+  - "앗, 잘못 눌렀어!" → 되돌릴 방법 없음
+  - 실수가 두려워서 천천히 입력
+  - 스트레스 증가
+
+해결:
+  - 액션 기록 후 3초간 "실행취소" 버튼 표시
+  - 3초 타이머로 시간 확인 가능
+  - 1탭으로 취소하고 다시 입력
+
+효과:
+  - 실수 걱정 없이 빠르게 입력
+  - 스트레스 감소
+  - 데이터 품질 향상 (확인 프로세스)
+```
+
+---
+
+## 🚀 핵심 워크플로우 (불변)
+
+### 시나리오 1: 테이블 선택 및 플레이어 관리
+```
+1. 앱 시작
+   → 테이블 목록 표시 (기본: 키 플레이어 포함 테이블만)
+
+2. 필터 선택 (옵션)
+   → [⭐ 키 플레이어 테이블만] / [📋 전체 테이블] 토글
+
+3. 테이블 선택
+   → "Ocean Blue - T3" 클릭
+   → 해당 테이블의 플레이어 8명만 로드
+
+4. 플레이어 정보 업데이트
+   → John 칩: 50K → 55K (탭 → 입력)
+   → Alice 좌석: #5 → #7 (탭 → 입력)
+   → Tom 새로 추가
+
+시간: < 30초
+```
+
+### 시나리오 2: 핸드 기록 (자동화 UX)
+
+```
+1. [핸드 시작] 버튼 클릭
+   → 자동: 핸드 #127
+   → 자동: SB 500, BB 1000 처리
+   → 자동: UTG (John) 하이라이트
+
+2. Preflop 액션
+   → John Raise 2000 입력
+   → 자동: Alice 하이라이트, "Call 2000" 표시
+   → Alice Call 클릭 (금액 자동)
+   → 자동: 다음 플레이어 하이라이트
+   → ...
+   → 자동: "Flop 카드 3장 입력하세요" 알림
+
+3. Flop 액션
+   → A♠ K♥ Q♦ 입력
+   → 자동: SB (Tom) 하이라이트
+   → Tom Check 입력
+   → 자동: Sarah 하이라이트
+   → ...
+   → 자동: "Turn 카드 1장 입력하세요" 알림
+
+4. Turn/River 액션
+   → 동일 방식 반복
+   → 자동: 스트릿 전환 안내
+
+5. Showdown
+   → 남은 플레이어 카드 입력
+   → 승자 선택 (John)
+   → 자동: 핸드 #128 시작
+
+시간: 핸드당 1-2분 (기존 3-5분 → 50% 단축)
+체감: Sarah는 "액션만 입력", 나머지는 앱이 자동 처리
+```
+
+### 시나리오 3: 다른 테이블로 이동
+```
+1. 핸드 기록 중 Alice가 Dragon Green으로 이동
+
+2. 빠른 전환
+   → [← 테이블 목록] 버튼 클릭
+   → 1초 이내 테이블 목록 복귀
+
+3. 새 테이블 선택
+   → "Dragon Green - T7" 클릭
+   → 해당 테이블 플레이어 6명만 로드
+
+시간: < 2초
+```
+
+---
 
 ## 📚 관련 문서
 
-- **요구사항**: [PRD.md](PRD.md)
-- **상세 설계**: [LLD.md](LLD.md)
+### 필수 문서 (5개)
+- **비전** (불변): [PLAN.md](PLAN.md) - 이 문서
+- **작업 목록** (변동): [PRD.md](PRD.md)
+- **구현 인덱스** (현재): [LLD.md](LLD.md)
+- **현재 상태** (실시간): [STATUS.md](STATUS.md)
+- **완료 기록** (과거): [CHANGELOG.md](CHANGELOG.md)
+
+### 참고 문서
 - **디자인 철학**: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)
 - **개발 규칙**: [PROJECT_RULES.md](PROJECT_RULES.md)
 
 ---
 
-## 🎯 개발 철학
-
-### ❌ 기존 방식의 문제점
-- 4주 후에야 동작하는 앱 완성
-- 중간에 요구사항 변경 시 전체 재작업
-- 실제 사용자 피드백 받기 어려움
-- 처음부터 과도한 설계 (Over-Engineering)
-
-### ✅ 프로토타입 우선 방식
-- **3일 후 동작하는 앱** 완성
-- **주간 사용자 피드백** 기반 개선
-- **점진적 복잡도 증가** (필요할 때만)
-- **매주 배포 가능한 버전** 유지
-
----
-
-## 📅 Week 1: MVP 프로토타입
-
-### 목표
-**핵심 워크플로우만 동작**: 테이블 목록 표시 → 필터링 → 테이블 선택 → 플레이어 관리 → 핸드 기록 → 완료
-
-### Day 1-2: 핵심 로직 구현 (단일 파일)
-
-**파일**: `index.html` (올인원)
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <title>포커 핸드 로거 - MVP</title>
-  <style>
-    .key-player { background: yellow; font-weight: bold; }
-    .table-card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; cursor: pointer; }
-    .table-card:hover { background: #f0f0f0; }
-  </style>
-</head>
-<body>
-  <h1>포커 테이블 모니터링 - MVP</h1>
-
-  <!-- 1. 초기 설정 (localStorage) -->
-  <section id="settings" style="display: none;">
-    <h2>⚙️ 설정</h2>
-    <input id="apiKeyInput" placeholder="Google API Key">
-    <input id="mainSheetInput" placeholder="Main Sheet ID">
-    <input id="outputSheetInput" placeholder="Output Sheet ID">
-    <button onclick="saveSettings()">저장</button>
-  </section>
-
-  <!-- 2. 테이블 목록 -->
-  <section id="tableList">
-    <h2>1. 테이블 선택</h2>
-    <div>
-      <label><input type="radio" name="filter" value="keyplayer" checked> ⭐ 키 플레이어 테이블만</label>
-      <label><input type="radio" name="filter" value="all"> 📋 전체 테이블</label>
-    </div>
-    <div id="tables"></div>
-  </section>
-
-  <!-- 3. 플레이어 관리 -->
-  <section id="playerManagement" style="display: none;">
-    <h2>2. 플레이어 관리</h2>
-    <button onclick="backToTableList()">← 테이블 목록</button>
-    <div id="players"></div>
-    <button onclick="switchToHandMode()">핸드 기록 모드로 전환</button>
-  </section>
-
-  <!-- 3. 핸드 컨트롤 -->
-  <section>
-    <h2>3. 핸드 기록</h2>
-    <button id="startHandBtn" onclick="startHand()" disabled>핸드 시작</button>
-    <div id="handInfo"></div>
-  </section>
-
-  <!-- 4. 액션 기록 -->
-  <section>
-    <input id="actionInput" placeholder="액션 (예: SHAHINA raises 5000)" disabled>
-    <button id="recordBtn" onclick="recordAction()" disabled>기록</button>
-    <div id="actions"></div>
-  </section>
-
-  <!-- 5. 핸드 완료 -->
-  <section>
-    <input id="winnerInput" placeholder="승자 이름" disabled>
-    <button id="completeBtn" onclick="completeHand()" disabled>핸드 완료</button>
-  </section>
-
-  <script>
-    // Google Sheets API 설정
-    const SHEET_ID = 'YOUR_SHEET_ID';
-    const API_KEY = 'YOUR_API_KEY';
-
-    let currentTable = null;
-    let currentHand = null;
-
-    // 1. 키 플레이어 검색
-    async function searchKeyPlayer() {
-      const name = document.getElementById('keyPlayerInput').value;
-
-      // Google Sheets Type 시트 조회
-      const response = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Type!A:H?key=${API_KEY}`
-      );
-      const data = await response.json();
-
-      // 키 플레이어 찾기
-      const rows = data.values.slice(1); // 헤더 제외
-      const tables = new Map();
-
-      for (const row of rows) {
-        const [pokerRoom, tableName, tableNo, seatNo, playerName, nationality, chips, isKeyPlayer] = row;
-        const tableId = `${pokerRoom}-${tableName}`.replace(/ /g, '-').toLowerCase();
-
-        if (!tables.has(tableId)) {
-          tables.set(tableId, {
-            id: tableId,
-            pokerRoom,
-            tableName,
-            players: []
-          });
-        }
-
-        tables.get(tableId).players.push({
-          seatNo: parseInt(seatNo),
-          name: playerName,
-          chips: parseInt(chips.replace(/,/g, '')),
-          isKeyPlayer: isKeyPlayer === 'TRUE'
-        });
-      }
-
-      // 키 플레이어가 있는 테이블 찾기
-      for (const table of tables.values()) {
-        const keyPlayers = table.players.filter(p => p.isKeyPlayer);
-        if (keyPlayers.some(p => p.name.includes(name))) {
-          currentTable = table;
-          displayTable(table);
-          document.getElementById('startHandBtn').disabled = false;
-          return;
-        }
-      }
-
-      alert('키 플레이어를 찾을 수 없습니다');
-    }
-
-    // 2. 테이블 표시
-    function displayTable(table) {
-      const html = `
-        <h3>${table.pokerRoom} - ${table.tableName}</h3>
-        ${table.players.map(p => `
-          <div class="${p.isKeyPlayer ? 'key-player' : ''}">
-            좌석 #${p.seatNo}: ${p.name} ${p.isKeyPlayer ? '⭐' : ''} - ${p.chips.toLocaleString()} 칩
-          </div>
-        `).join('')}
-      `;
-      document.getElementById('players').innerHTML = html;
-    }
-
-    // 3. 핸드 시작
-    async function startHand() {
-      const handNumber = prompt('핸드 번호를 입력하세요', '1');
-
-      currentHand = {
-        number: parseInt(handNumber),
-        tableId: currentTable.id,
-        timestamp: Date.now(),
-        actions: []
-      };
-
-      // Google Sheets에 HAND 행 추가
-      await appendToSheet('Hand', [
-        ['HAND', currentHand.number, currentHand.timestamp, 'HOLDEM', 'BB_ANTE', '', '', '', '', '', '', '', '', '', '', '', currentTable.id]
-      ]);
-
-      // 플레이어 행 추가
-      for (const player of currentTable.players) {
-        await appendToSheet('Hand', [
-          ['PLAYER', player.name, player.seatNo, 0, player.chips, player.chips, '']
-        ]);
-      }
-
-      document.getElementById('handInfo').innerHTML = `<strong>핸드 #${currentHand.number} 진행 중</strong>`;
-      document.getElementById('actionInput').disabled = false;
-      document.getElementById('recordBtn').disabled = false;
-      document.getElementById('winnerInput').disabled = false;
-      document.getElementById('completeBtn').disabled = false;
-    }
-
-    // 4. 액션 기록
-    async function recordAction() {
-      const action = document.getElementById('actionInput').value;
-
-      currentHand.actions.push(action);
-
-      // Google Sheets에 EVENT 행 추가
-      await appendToSheet('Hand', [
-        ['EVENT', 'ACTION', '', '', Date.now(), action]
-      ]);
-
-      // UI 업데이트
-      const actionDiv = document.createElement('div');
-      actionDiv.textContent = `${new Date().toLocaleTimeString()}: ${action}`;
-      document.getElementById('actions').appendChild(actionDiv);
-
-      document.getElementById('actionInput').value = '';
-    }
-
-    // 5. 핸드 완료
-    async function completeHand() {
-      const winner = document.getElementById('winnerInput').value;
-
-      // Google Sheets에 빈 행 추가 (핸드 구분)
-      await appendToSheet('Hand', [['']]);
-
-      alert(`핸드 #${currentHand.number} 완료! 승자: ${winner}`);
-
-      // 초기화
-      document.getElementById('handInfo').innerHTML = '';
-      document.getElementById('actions').innerHTML = '';
-      document.getElementById('actionInput').disabled = true;
-      document.getElementById('recordBtn').disabled = true;
-      document.getElementById('winnerInput').disabled = true;
-      document.getElementById('completeBtn').disabled = true;
-      document.getElementById('winnerInput').value = '';
-
-      currentHand = null;
-    }
-
-    // Google Sheets 추가 헬퍼
-    async function appendToSheet(sheetName, values) {
-      const response = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}!A:Z:append?valueInputOption=RAW&key=${API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ values })
-        }
-      );
-      return response.json();
-    }
-  </script>
-</body>
-</html>
-```
-
-**완료 조건**:
-- [ ] 키 플레이어 검색 동작
-- [ ] 테이블 플레이어 표시
-- [ ] 핸드 시작/기록/완료 동작
-- [ ] Google Sheets 연동 확인
-
----
-
-### Day 3: UI 개선 및 에러 처리
-
-**개선 사항**:
-```javascript
-// 로딩 표시
-function showLoading(message) {
-  document.body.innerHTML += `<div id="loading">${message}...</div>`;
-}
-
-function hideLoading() {
-  document.getElementById('loading')?.remove();
-}
-
-// 에러 처리
-async function searchKeyPlayer() {
-  try {
-    showLoading('검색 중');
-    // ... 검색 로직
-    hideLoading();
-  } catch (error) {
-    hideLoading();
-    alert(`에러: ${error.message}`);
-  }
-}
-
-// 입력 검증
-function recordAction() {
-  const action = document.getElementById('actionInput').value;
-
-  if (!action.trim()) {
-    alert('액션을 입력하세요');
-    return;
-  }
-
-  // ... 기록 로직
-}
-```
-
-**완료 조건**:
-- [ ] 로딩 상태 표시
-- [ ] 에러 처리 완료
-- [ ] 입력 검증 추가
-
----
-
-### Day 4: E2E 테스트
-
-**시나리오 테스트**:
-```javascript
-// test-scenario.js
-async function testFullWorkflow() {
-  console.log('🧪 E2E 테스트 시작...');
-
-  // 1. 키 플레이어 검색
-  console.log('1. 키 플레이어 검색 (SHAHINA)');
-  document.getElementById('keyPlayerInput').value = 'SHAHINA';
-  await searchKeyPlayer();
-
-  await sleep(1000);
-
-  // 2. 핸드 시작
-  console.log('2. 핸드 시작');
-  await startHand();
-
-  await sleep(1000);
-
-  // 3. 액션 기록 (5개)
-  const actions = [
-    'SHAHINA raises 5000',
-    'Alice calls 5000',
-    'Bob folds',
-    'SHAHINA bets 10000',
-    'Alice calls 10000'
-  ];
-
-  for (const action of actions) {
-    console.log(`3. 액션 기록: ${action}`);
-    document.getElementById('actionInput').value = action;
-    await recordAction();
-    await sleep(500);
-  }
-
-  // 4. 핸드 완료
-  console.log('4. 핸드 완료 (승자: SHAHINA)');
-  document.getElementById('winnerInput').value = 'SHAHINA';
-  await completeHand();
-
-  console.log('✅ E2E 테스트 완료!');
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// 실행
-testFullWorkflow();
-```
-
-**완료 조건**:
-- [ ] E2E 테스트 스크립트 작성
-- [ ] 자동 테스트 통과
-- [ ] Google Sheets 데이터 확인
-
----
-
-### Day 5: 사용자 테스트 및 피드백
-
-**테스트 시나리오**:
-1. 실제 데이터 매니저와 함께 테스트
-2. 키 플레이어 검색 (SHAHINA)
-3. Ocean Blue 테이블 확인
-4. 핸드 #128 시작
-5. 5개 액션 기록
-6. 핸드 완료
-
-**피드백 수집 양식**:
-```markdown
-## 사용자 피드백
-
-### 1. 좋은 점
-- [ ]
-
-### 2. 불편한 점
-- [ ]
-
-### 3. 빠진 기능
-- [ ]
-
-### 4. 성능 이슈
-- [ ]
-
-### 5. 우선순위 개선 사항
-1.
-2.
-3.
-```
-
-**완료 조건**:
-- [ ] 실제 사용자 테스트 완료
-- [ ] 피드백 3개 이상 수집
-- [ ] Week 2 우선순위 결정
-
----
-
-## 🎯 다음 단계 (Week 2 옵션)
-
-### 옵션 A: 실사용 테스트 및 버그 수정
-**목표**: 실제 카지노 환경에서 1주일 사용 후 피드백 수집
-
-**작업**:
-1. 실사용자 테스트 (Sarah Kim과 함께)
-2. 버그 리스트 작성
-3. 우선순위 수정
-4. 사용성 개선
-
-**기간**: 3-5일
-
----
-
-### 옵션 B: 성능 최적화
-**목표**: 테이블 로드 시간 2초 → 0.5초
-
-**작업**:
-1. IndexedDB 캐싱 도입
-2. 백그라운드 동기화
-3. 오프라인 지원
-4. 성능 측정 및 최적화
-
-**기간**: 5-7일
-
----
-
-### 옵션 C: PWA 기능 강화
-**목표**: 앱처럼 동작하는 웹
-
-**작업**:
-1. Service Worker 등록
-2. 오프라인 캐싱
-3. 홈 화면 추가
-4. 푸시 알림 (선택)
-
-**기간**: 3-5일
-
----
-
-### 옵션 D: 추가 기능 개발
-**목표**: Week 2+ 기능 추가
-
-**후보 기능**:
-1. 통계 대시보드
-2. 핸드 히스토리 조회
-3. 플레이어 검색
-4. 테이블 비교
-5. 데이터 내보내기
-
-**기간**: 기능당 2-3일
-
----
-
-## 📅 Week 2 이후 계획
-
-> **참고**: 상세 구현 계획은 [PRD.md - 구현 계획](PRD.md#-구현-계획-week-2) 참조
-
-### Local-First 아키텍처 완성
-- Phase 1-5: 핸드 기록 및 플레이어 관리 동기화
-- IndexedDB + syncQueue 기반 오프라인 지원
-- 총 예상 시간: 9-14시간 (1-2일)
-
-### 완료 기준
-- ✅ 모든 쓰기 작업 Local-First
-- ✅ 오프라인 100% 지원
-- ✅ 성능 목표 달성 (액션 0.3초)
-- ✅ 3초 실행취소 기능
-
----
-
-## 🎯 다음 단계 (Week 3+)
-
-**상세 내용**: [LLD.md](LLD.md) 참조
-
-### 향후 고려사항
-- DDD 리팩토링 (코드 복잡도 증가 시)
-- Redis 캐싱 (Multi-User 지원 필요 시)
-- 실시간 동기화 (Pub/Sub)
-
----
-
-## ✅ 성공 기준
-
-### Week 1 ✅
-- [x] 동작하는 MVP 완성
-- [x] 사용자 피드백 수집
-
-### Week 2 (진행중)
-- [ ] Local-First 아키텍처 완성
-- [ ] 성능 목표 달성 (액션 0.3초)
-- [ ] 오프라인 100% 지원
+## ✅ 최종 성공 기준 (불변)
+
+### 사용성
+- Sarah가 중간부터 기록 가능 (Turn/River 시작)
+- 앱이 다음 동작 안내 (생각할 필요 없음)
+- 실수해도 3초 안에 취소 가능
+
+### 성능
+- 버튼 누르면 즉시 반응 (0.3초 이내)
+- 인터넷 없어도 계속 사용 가능
+- 테이블 바꾸기 1초 이내
+
+### 효율성
+- 핸드 기록 시간 60% 단축 (5-8분 → 2-3분)
+- 중간 합류 시 우선순위 안내 (보드 카드 먼저)
+- 반복 작업 자동화 (핸드 번호, Call 금액, 다음 플레이어)
+
+### 만족도
+- Sarah 만족도 4.5/5 이상
+- 현장 테스트 1주일 통과
+- "생각 없이 기록만 하면 된다" 피드백
 
 ---
 

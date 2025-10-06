@@ -1,59 +1,63 @@
-# 포커 핸드 로거 - Week 1 MVP 프로토타입
+# 포커 핸드 로거
 
-> **개발 기간**: Week 1 (3일)
-> **목표**: 핵심 워크플로우만 동작하는 단일 HTML 파일
-> **문서**: [../docs/PLAN.md](../docs/PLAN.md)
+> 토너먼트 데이터 매니저를 위한 빠른 핸드 기록 앱
 
-## 🎯 Week 1 목표
-
-**동작하는 최소 기능 (MVP)**:
-1. 키 플레이어 검색 → 테이블 찾기
-2. 테이블 플레이어 8명 표시 (키 플레이어 강조)
-3. 핸드 시작 → 액션 기록 → 완료
-
-## 🚀 실행 방법
+## 🚀 빠른 시작
 
 ```bash
-# 의존성 설치
+# 설치 및 실행
 npm install
-
-# 개발 서버 실행
 npm run dev
 
-# 브라우저에서 열기
-# http://localhost:3000/prototype.html
+# 브라우저 열기
+http://localhost:5173
 ```
 
-## 📋 Google Sheets 설정
+## 📚 문서 구조
 
-1. Google Cloud Console에서 API 키 발급
-2. `prototype.html` 파일의 `SHEET_ID`와 `API_KEY` 수정
-3. Google Sheets 공유 설정: "링크가 있는 모든 사용자"
+**신규 참여자는 이 순서로 읽으세요**:
 
-## 🛠️ Week 1 기술 스택
+1. **[PLAN.md](docs/PLAN.md)** - 제품 비전 (왜 만드는가?)
+2. **[STATUS.md](docs/STATUS.md)** - 현재 진행 상황 (어디까지 왔나?)
+3. **[PRD.md](docs/PRD.md)** - 다음 할 일 (무엇을 할 것인가?)
+4. **[LLD.md](docs/LLD.md)** - 구현 상세 (어떻게 만들었나?)
+5. **[CHANGELOG.md](docs/CHANGELOG.md)** - 완료 기록 (무엇을 했나?)
 
-- ✅ **단일 HTML 파일** (prototype.html)
-- ✅ **Vanilla JavaScript** (No 프레임워크)
-- ✅ **Google Sheets API** (직접 호출)
-- ❌ No 캐싱 (IndexedDB, Redis)
-- ❌ No 복잡한 아키텍처 (DDD, 에이전트)
-- ❌ No 빌드 도구 (Webpack, Vite)
+## 🛠️ 기술 스택
 
-## 📁 파일 구조
+- Vanilla JavaScript (No 프레임워크)
+- Google Sheets API
+- IndexedDB (Local-First Architecture)
+- PWA (Progressive Web App)
+
+## 📁 프로젝트 구조
 
 ```
 new_virtual_table/
-├── prototype.html       # 올인원 MVP 파일
-├── package.json         # 기본 설정
-├── .gitignore
-└── README.md           # 이 파일
+├── index.html        # 진입점 (304줄)
+├── css/
+│   └── styles.css    # Minimal Design (474줄)
+├── js/               # 8개 파일로 분리
+│   ├── config.js     # 설정
+│   ├── api.js        # Google Sheets API
+│   ├── db.js         # IndexedDB
+│   ├── sync.js       # 동기화
+│   ├── ui.js         # Modal 관리
+│   ├── utils.js      # 공통 함수
+│   ├── table-manager.js  # 테이블 관리
+│   └── hand-recorder.js  # 핸드 기록
+├── sw.js             # Service Worker (PWA)
+├── manifest.json     # PWA 설정
+├── docs/             # 프로젝트 문서 (5개)
+├── package.json
+└── README.md         # 이 파일
 ```
 
-## 🔄 다음 단계 (Week 2 이후)
+## 🤝 개발 참여
 
-사용자 피드백에 따라:
-- "검색이 느려요" → IndexedDB 추가
-- "오프라인에서 안 돼요" → Service Worker 추가
-- "여러 명이 쓰니 충돌나요" → Redis 추가
+개발 규칙 및 워크플로우는 `c:\claude\CLAUDE.md`를 참조하세요.
 
-**YAGNI 원칙**: 필요할 때만 추가!
+**핵심 규칙**:
+- Code Review 필수 (모든 코드 작업 후)
+- Minimal Design 철학 준수
+- 문서 5개만 유지 (PLAN, PRD, LLD, STATUS, CHANGELOG)
